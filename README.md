@@ -1,111 +1,115 @@
-# 🗺️ Mapping with TurtleBot4
+# TurtleBot4 Setup & Simulation Guide
 
-This project uses **TurtleBot4** to perform SLAM (Simultaneous Localization and Mapping) and generate 2D maps using ROS 2. It demonstrates how to launch mapping using the `slam_toolbox`, teleoperate the robot, and save the map.
-
----
-
-## 🛠️ Requirements
-
-- **TurtleBot4** (Lite or Standard)
-- **ROS 2** (Humble or newer)
-- `slam_toolbox`
-- `teleop_twist_keyboard` (for manual control)
-- A computer connected to the same network as TurtleBot
+This repository provides a comprehensive guide to set up TurtleBot4 simulation, SLAM, teleoperation, and multi-robot environments using ROS 2 Humble and Ignition Fortress. It also covers 3D mapping using RTAB-Map.
 
 ---
 
-## 🚀 Setup
+## 🛠️ Installation
 
-### 1. Install Required Packages
+### TurtleBot4 Simulator
 
 ```bash
-sudo apt update
-sudo apt install ros-humble-slam-toolbox ros-humble-teleop-twist-keyboard
+sudo apt install ros-humble-turtlebot4-simulator ros-humble-irobot-create-nodes
+sudo apt install ros-dev-tools
 ```
 
-> Replace `humble` with your ROS 2 distro if different.
-
----
-
-## 📡 Connecting to TurtleBot4
-
-SSH into TurtleBot4:
+### Ignition Fortress
 
 ```bash
-ssh ubuntu@<TURTLEBOT4_IP>
-```
-
-Source the ROS setup:
-
-```bash
-source /opt/ros/humble/setup.bash
-source ~/turtlebot4_ws/install/setup.bash
+sudo apt-get update && sudo apt-get install wget
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+sudo apt-get update && sudo apt-get install ignition-fortress
 ```
 
 ---
 
-## 🧭 Launch SLAM
+## 🚀 Running the Simulator
 
-On TurtleBot4:
+### Default Launch
 
 ```bash
-ros2 launch turtlebot4_navigation slam.launch.py
+ros2 launch turtlebot4_ignition_bringup turtlebot4_ignition.launch.py
+```
+
+### Launch with SLAM and Nav2
+
+```bash
+ros2 launch turtlebot4_ignition_bringup turtlebot4_ignition.launch.py slam:=true nav2:=true rviz:=true
 ```
 
 ---
 
-## 🎮 Teleoperate the Robot
+## 🕹️ Teleoperation
 
-On your laptop:
+### Install Teleop Twist Keyboard
+
+```bash
+sudo apt install ros-humble-teleop-twist-keyboard
+```
+
+### Run Teleop
 
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
-Use the keyboard to move the robot and build the map.
-
 ---
 
-## 💾 Save the Map
+## 🗺️ SLAM and Visualization
 
-Once the map is complete:
+### Install TurtleBot4 Navigation
 
 ```bash
-ros2 run nav2_map_server map_saver_cli -f ~/my_map
+sudo apt install ros-humble-turtlebot4-navigation
 ```
 
-This will save `my_map.yaml` and `my_map.pgm` in your home directory.
+### Launch SLAM and RViz
 
----
-
-## 🗂️ Folder Structure
-
-```
-turtlebot4_mapping/
-├── launch/
-│   └── mapping.launch.py
-├── maps/
-│   └── my_map.yaml / .pgm
-├── README.md
-└── ...
+```bash
+ros2 launch turtlebot4_navigation slam.launch.py
+ros2 launch turtlebot4_viz view_robot.launch.py
 ```
 
 ---
 
-## 📸 Example Output
+## 🤖 Multi-Robot Simulation
 
-![Map Screenshot](https://raw.githubusercontent.com/yourusername/turtlebot4_mapping/main/maps/sample_map.png)
+```bash
+# Launch robot1
+ros2 launch turtlebot4_ignition_bringup turtlebot4_ignition.launch.py namespace:=/robot1 nav2:=true slam:=false localization:=true rviz:=true
+
+# Spawn robot2
+ros2 launch turtlebot4_ignition_bringup turtlebot4_spawn.launch.py namespace:=/robot2 x:=0.0 y:=1.0 nav2:=true slam:=false localization:=true rviz:=true
+```
 
 ---
 
-## ✨ Credits
+## 🧠 3D Mapping with RTAB-Map
 
-- [TurtleBot4 Documentation](https://turtlebot.github.io/)
-- [slam_toolbox](https://github.com/SteveMacenski/slam_toolbox)
+```bash
+ros2 launch rtabmap_launch rtabmap.launch.py
+```
+
+Make sure the camera and TF tree are properly set up before launching RTAB-Map.
 
 ---
 
-## 📬 Contact
+## ✅ Requirements
 
-For any queries, reach out at: `your-email@example.com`
+- Ubuntu 22.04
+- ROS 2 Humble Hawksbill
+- Ignition Fortress
 
+---
+
+## 📌 Notes
+
+- Always source your ROS environment before running any commands:
+  ```bash
+  source /opt/ros/humble/setup.bash
+  ```
+
+---
+
+Feel free to contribute or raise issues if you face any trouble!
